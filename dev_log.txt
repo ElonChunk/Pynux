@@ -1,0 +1,7 @@
+23/7/2025
+1- Foundation and creation of Pynux
+2- added test command, credits and devlog command
+3- added colours and more better handling to commands
+
+-
+
