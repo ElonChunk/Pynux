@@ -1,0 +1,21 @@
+24/7/2025
+Pynux 1.0.1v
+VVVVV COMMANDS ADDED VVVVV
+1- rm {folder/file} | removes the typed folder or file
+2- rn {folder/file} | rename to what you want either folder or file
+3- nano {file} | you can edit files like python ones and etc but it is still in test mode to make it better
+4- ls | it lists all files and folders on the direcotry you are on, it also has colours for folders and diffirent files
+5- mkdir {name} | creates a directory ( or folder lets say )
+6- cd {path/folder} | changes direcotry ( it is synced with the direcotry on the input and with the ls )
+7- devlog | prints out this file which shows updates and bug fixes 
+8- reports | it prints for if we need support on our code or not and help
+9- credits | it prints out who helped on the code and on the run with Pynux
+10- updates | it is like devlog but only prints the latest bug fixes and updates of the terminal!
+
+VVVVV Other things VVVVV
+We added this thingy which you can type the commad faster with tab ( using prompt_toolkit )
+We added rich which is used for better colour formating and prints.
+
+VVVVV things that will be added VVVVV
+1- discord server
+2- apt install/uninstall/list
