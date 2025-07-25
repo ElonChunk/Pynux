@@ -29,3 +29,21 @@ VVVVV things that will be added VVVVV
 2- apt install/uninstall/list
 
 -
+
+25/7/2025
+Pynux 1.0.2v
+
+VVVVVVVV NEW COMMANDS VVVVVVVV
+pwd – Print working directory
+clear – Clear the terminal screen
+mv <src> <dest> – Move file or folder
+cp <src> <dest> – Copy file or folder
+cat <filename> – Show contents of a file
+ip – Show local IP address
+ping <host> – Ping a website or IP
+whoami – Show current username
+
+VVVVV Things that will be added VVVVVV
+discord server
+apt install/uninstall/list ( in the future )
+more commands
