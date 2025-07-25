@@ -27,7 +27,8 @@ YELLOW = '\033[93m'
 RESET = '\033[39m'
 
 
-commands = ["test", "credits", "devlog", "ls", "mkdir", "cd", "nano", "rm", "rn", "updates", "reports"]
+commands = ["test", "credits", "devlog", "ls", "mkdir", "cd", "nano", "rm", "rn", "updates", "reports", 
+            "pwd", "clear", "mv", "cp", "cat", "ip", "ping", "whoami"]
 command_completer = WordCompleter(commands, ignore_case=True)
 session = PromptSession()
 
@@ -182,6 +183,77 @@ def nano_command(filename):
     except Exception as e:
         console.print(f"[red]Error saving file: {e}[/]")
 
+def pwd_command():
+    console.print(f"[green]{os.getcwd()}[/]")
+
+def clear_command():
+    PYSystem.Clear()
+
+def mv_command(src, dest):
+    try:
+        shutil.move(src, dest)
+        console.print(f"[green]Moved '{src}' to '{dest}'.[/]")
+    except Exception as e:
+        console.print(f"[red]Error moving: {e}[/]")
+
+def cp_command(src, dest):
+    try:
+        if os.path.isfile(src):
+            shutil.copy2(src, dest)
+            console.print(f"[green]Copied '{src}' to '{dest}'.[/]")
+        elif os.path.isdir(src):
+            shutil.copytree(src, dest)
+            console.print(f"[green]Copied directory '{src}' to '{dest}'.[/]")
+        else:
+            console.print(f"[red]Error: '{src}' not found.[/]")
+    except Exception as e:
+        console.print(f"[red]Error copying: {e}[/]")
+
+def cat_command(filename):
+    try:
+        with open(filename, 'r') as f:
+            content = f.read()
+            console.print(f"[white]{content}[/]")
+    except FileNotFoundError:
+        console.print(f"[red]File '{filename}' not found.[/]")
+    except Exception as e:
+        console.print(f"[red]Error reading file: {e}[/]")
+
+def ip_command():
+    import socket
+    try:
+        hostname = socket.gethostname()
+        ip_address = socket.gethostbyname(hostname)
+        console.print(f"[cyan]Local IP: {ip_address}[/]")
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/]")
+
+def ping_command(host):
+    import subprocess
+    try:
+        subprocess.run(["ping", "-n", "4", host])
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/]")
+
+def whoami_command():
+    console.print(f"[cyan]{os.getlogin()}[/]")
+
+def wget_command(url):
+    try:
+        filename = url.split("/")[-1] or "downloaded_file"
+        console.print(f"[cyan]Downloading from:[/] {url}")
+        response = requests.get(url, stream=True)
+
+        if response.status_code == 200:
+            with open(filename, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            console.print(f"[green]Downloaded '{filename}' successfully.[/]")
+        else:
+            console.print(f"[red]Failed to download. Status code: {response.status_code}[/]")
+    except requests.exceptions.RequestException as e:
+        console.print(f"[red]Error: {e}[/]")
+
 def main():
     print_banner()
     get_reports()
@@ -210,6 +282,46 @@ def main():
             else:
                 console.print("[red]Usage: mkdir <foldername>[/]")
 
+        elif prompt == "pwd":
+            pwd_command()
+
+        elif prompt == "clear":
+            clear_command()
+
+        elif prompt.startswith("mv "):
+            parts = prompt.split()
+            if len(parts) == 3:
+                mv_command(parts[1], parts[2])
+            else:
+                console.print("[red]Usage: mv <source> <destination>[/]")
+
+        elif prompt.startswith("cp "):
+            parts = prompt.split()
+            if len(parts) == 3:
+                cp_command(parts[1], parts[2])
+            else:
+                console.print("[red]Usage: cp <source> <destination>[/]")
+
+        elif prompt.startswith("cat "):
+            filename = prompt[4:].strip()
+            if filename:
+                cat_command(filename)
+            else:
+                console.print("[red]Usage: cat <filename>[/]")
+
+        elif prompt == "ip":
+            ip_command()
+
+        elif prompt.startswith("ping "):
+            host = prompt[5:].strip()
+            if host:
+                ping_command(host)
+            else:
+                console.print("[red]Usage: ping <host>[/]")
+
+        elif prompt == "whoami":
+            whoami_command()
+
         elif prompt.startswith("rn "):
             parts = prompt.split()
             if len(parts) == 3:
@@ -230,6 +342,13 @@ def main():
                 rm_command(name)
             else:
                 console.print("[red]Usage: rm <file_or_folder>[/]")
+
+        elif prompt.startswith("wget "):
+            url = prompt[5:].strip()
+            if url:
+                wget_command(url)
+            else:
+                console.print("[red]Usage: wget <url>[/]")
 
         elif prompt.startswith("nano "):
             filename = prompt[5:].strip()
