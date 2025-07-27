@@ -1,17 +1,14 @@
-25/7/2025
-Pynux 1.0.2v
+27/7/2025
+Pynux 1.0.3v
 
 VVVVVVVV NEW COMMANDS VVVVVVVV
-pwd – Print working directory
-clear – Clear the terminal screen
-mv <src> <dest> – Move file or folder
-cp <src> <dest> – Copy file or folder
-cat <filename> – Show contents of a file
-ip – Show local IP address
-ping <host> – Ping a website or IP
-whoami – Show current username
+wget <url> | gets file from url.
+apt install/uninstall/list <package_name> | installs packages which adds new commands or more abilities to the terminal
+discord | prints out the discord link to our discord server
 
-VVVVV Things that will be added VVVVVV
-discord server
-apt install/uninstall/list ( in the future )
-more commands
+NOTE: you can add your own packages and modifications to the terminal, but inside your packages you must have a def run to run the program
+     or else it wont :D, and dont forget to always add your packages to the package folder and name it as the command you want it to be.
+     +
+     You can see all available packages at https://github.com/ElonChunk/PynuxPackages. 
+
+
