@@ -28,8 +28,7 @@ RESET = '\033[39m'
 
 
 commands = ["test", "credits", "devlog", "ls", "mkdir", "cd", "nano", "rm", "rn", "updates", "reports", 
-            "pwd", "clear", "mv", "cp", "cat", "ip", "ping", "whoami"]
-command_completer = WordCompleter(commands, ignore_case=True)
+            "pwd", "clear", "mv", "cp", "cat", "ip", "ping", "whoami", "wget", "apt", "discord"]
 session = PromptSession()
 
 # get desktop path
@@ -57,7 +56,7 @@ def print_banner():
                                                                
 Fan-Made Linux Terminal running On Python 3.11.4
 Only runnable for Windows OS from 10 - 11
-Version: 1.0.1v
+Version: 1.0.3v
 """)
     print(colorama.Fore.LIGHTGREEN_EX + "===========================================================================")
     print(colorama.Fore.YELLOW + f"Current Time: {get_current_time()}")
@@ -254,7 +253,111 @@ def wget_command(url):
     except requests.exceptions.RequestException as e:
         console.print(f"[red]Error: {e}[/]")
 
+# TEST PACKAGES!!
+
+# === COMMAND LOADER FOR packages/ ===
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # path to main2.py
+COMMANDS_DIR = os.path.join(BASE_DIR, "packages")      # your actual command directory
+
+def init_directories():
+    os.makedirs(COMMANDS_DIR, exist_ok=True)
+
+def load_commands():
+    commands = {}
+    if not os.path.exists(COMMANDS_DIR):
+        print(f"[ERROR] {COMMANDS_DIR}")
+        return commands
+
+    for fname in os.listdir(COMMANDS_DIR):
+        if fname.endswith(".py"):
+            cmd_name = fname[:-3]
+            with open(os.path.join(COMMANDS_DIR, fname), "r", encoding="utf-8") as f:
+                commands[cmd_name] = f.read()
+    return commands
+
+def execute_command(commands_packages, name, args):
+    if name not in commands_packages:
+        return  # maybe it's a built-in, don't error
+
+    scope = {
+        "__name__": "__main__",
+        "__args__": args,
+        "commands": commands_packages
+    }
+
+    try:
+        exec(commands_packages[name], scope)
+        if "run" in scope and callable(scope["run"]):
+            scope["run"](args, commands_packages)
+    except Exception as e:
+        print(f"[ERROR] While executing '{name}': {e}")
+
+# END OF TEST PACKAGES!
+# apt test!
+
+def apt_command(args):
+    packages_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "packages")
+    changed = False  # <- Track changes
+
+    if not args:
+        console.print("[yellow]Usage:[/]")
+        console.print(" - apt install <name>")
+        console.print(" - apt uninstall <name>")
+        console.print(" - apt list")
+        return False
+
+    sub = args[0]
+
+    if sub == "install":
+        if len(args) < 2:
+            console.print("[red]Usage: apt install <name>[/]")
+            return False
+        name = args[1]
+        url = f"https://raw.githubusercontent.com/ElonChunk/PynuxPackages/main/{name}.py"
+        filepath = os.path.join(packages_dir, f"{name}.py")
+
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                with open(filepath, "w", encoding="utf-8") as f:
+                    f.write(response.text)
+                console.print(f"[green]Installed '{name}' successfully.[/]")
+                changed = True
+            else:
+                console.print(f"[red]Package '{name}' not found. Status: {response.status_code}[/]")
+        except Exception as e:
+            console.print(f"[red]Error during install: {e}[/]")
+
+    elif sub == "uninstall":
+        if len(args) < 2:
+            console.print("[red]Usage: apt uninstall <name>[/]")
+            return False
+        name = args[1]
+        filepath = os.path.join(packages_dir, f"{name}.py")
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            console.print(f"[yellow]Uninstalled '{name}'.[/]")
+            changed = True
+        else:
+            console.print(f"[red]'{name}' is not installed.[/]")
+
+    elif sub == "list":
+        files = [f[:-3] for f in os.listdir(packages_dir) if f.endswith(".py")]
+        console.print("[cyan]Installed packages:[/]")
+        for pkg in sorted(files):
+            console.print(" -", pkg)
+
+    else:
+        console.print(f"[red]Unknown subcommand: {sub}[/]")
+
+    return changed  # <-- Tell main() that something changed
+
+#end of apt test
 def main():
+    commands_packages = load_commands()
+    command_completer = WordCompleter(commands + list(commands_packages.keys()), ignore_case=True)
+    init_directories()
     print_banner()
     get_reports()
     while True:
@@ -263,8 +366,28 @@ def main():
         prompt_text = HTML(f'<ansicyan>Pynux~</ansicyan> <ansibrightblue>{current_dir}</ansibrightblue> &gt;&gt; ')
         prompt = session.prompt(prompt_text, completer=command_completer)
 
-        if prompt == "test":
+        if not prompt:
+            continue
+
+        parts = prompt.split()
+        cmd_name = parts[0]
+        cmd_args = parts[1:]
+        execute_command(commands_packages, cmd_name, cmd_args)
+
+        if cmd_name == "apt":
+            changed = apt_command(cmd_args)
+            if changed:
+                commands_packages = load_commands()  # Reload installed packages
+                command_completer = WordCompleter(commands + list(commands_packages.keys()), ignore_case=True)
+
+        elif prompt == "test":
             print_test()
+
+        elif prompt == "discord":
+            print(colorama.Fore.BLUE + "Official Pynux Discord Server: https://discord.gg/ucJBsh86e3")
+
+        elif prompt == "":
+            continue
 
         elif prompt == "credits":
             credits_to_elon()
@@ -363,9 +486,9 @@ def main():
         elif prompt == "ls":
             ls_command()
 
-        else:
-            print(colorama.Fore.RED + "Unknown command. Type 'test' to run a test function.")
+        elif cmd_name not in commands and cmd_name not in commands_packages:
+            console.print("[red]Unknown command. Type 'test' to run a test function.[/]")
+
 
 if __name__ == "__main__":
     main()
-    # Additional functionality can be added here later
