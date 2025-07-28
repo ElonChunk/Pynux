@@ -27,8 +27,8 @@ YELLOW = '\033[93m'
 RESET = '\033[39m'
 
 
-commands = ["test", "credits", "devlog", "ls", "mkdir", "cd", "nano", "rm", "rn", "updates", "reports", 
-            "pwd", "clear", "mv", "cp", "cat", "ip", "ping", "whoami", "wget", "apt", "discord"]
+commands = ["test", "credits", "devlog", "ls", "mkdir", "cd", "rm", "rn", "updates", "reports", 
+            "pwd", "clear", "mv", "cp", "cat", "ip", "ping", "whoami", "wget", "apt", "discord", "reload"]
 session = PromptSession()
 
 # get desktop path
@@ -56,7 +56,7 @@ def print_banner():
                                                                
 Fan-Made Linux Terminal running On Python 3.11.4
 Only runnable for Windows OS from 10 - 11
-Version: 1.0.3v
+Version: 1.0.4v
 """)
     print(colorama.Fore.LIGHTGREEN_EX + "===========================================================================")
     print(colorama.Fore.YELLOW + f"Current Time: {get_current_time()}")
@@ -154,33 +154,6 @@ def rm_command(name):
             console.print(f"[yellow]Folder '{name}' deleted.[/]")
     except Exception as e:
         console.print(f"[red]Error deleting '{name}': {e}[/]")
-
-def nano_command(filename):
-    console.print(f"[cyan]Opening '{filename}' in nano editor...[/]")
-    console.print("[dim]Type your text below. Type ':wq' alone on a line to save and quit.[/]")
-
-    # If the file already exists, show its content first
-    if os.path.exists(filename):
-        with open(filename, 'r') as f:
-            content = f.read()
-            if content:
-                console.print(f"[dim]--- Existing File Content ---[/]")
-                console.print(content)
-                console.print(f"[dim]--- End ---[/]")
-
-    lines = []
-    while True:
-        line = input()
-        if line.strip() == ":wq":
-            break
-        lines.append(line)
-
-    try:
-        with open(filename, 'w') as f:
-            f.write("\n".join(lines))
-        console.print(f"[green]Saved '{filename}' successfully.[/]")
-    except Exception as e:
-        console.print(f"[red]Error saving file: {e}[/]")
 
 def pwd_command():
     console.print(f"[green]{os.getcwd()}[/]")
@@ -311,24 +284,51 @@ def apt_command(args):
 
     if sub == "install":
         if len(args) < 2:
-            console.print("[red]Usage: apt install <name>[/]")
+            console.print("[red]Usage: apt install <name> or apt install *[/]")
             return False
-        name = args[1]
-        url = f"https://raw.githubusercontent.com/ElonChunk/PynuxPackages/main/{name}.py"
-        filepath = os.path.join(packages_dir, f"{name}.py")
 
-        try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                with open(filepath, "w", encoding="utf-8") as f:
-                    f.write(response.text)
-                console.print(f"[green]Installed '{name}' successfully.[/]")
-                changed = True
-            else:
-                console.print(f"[red]Package '{name}' not found. Status: {response.status_code}[/]")
-        except Exception as e:
-            console.print(f"[red]Error during install: {e}[/]")
+        names = []
 
+        # Handle wildcard: install all packages from GitHub repo
+        if args[1] == "*":
+            console.print("[cyan]Fetching package list from GitHub...[/]")
+
+            try:
+                response = requests.get("https://api.github.com/repos/ElonChunk/PynuxPackages/contents")
+                if response.status_code == 200:
+                    data = response.json()
+                    names = [item['name'][:-3] for item in data if item['name'].endswith('.py')]
+                else:
+                    console.print(f"[red]Failed to fetch file list (status {response.status_code})[/]")
+                    return False
+            except Exception as e:
+                console.print(f"[red]Error fetching package list: {e}[/]")
+                return False
+
+        else:
+            # Install a single package
+            names = [args[1]]
+
+        installed = []
+        for name in names:
+            url = f"https://raw.githubusercontent.com/ElonChunk/PynuxPackages/main/{name}.py"
+            filepath = os.path.join(packages_dir, f"{name}.py")
+
+            try:
+                response = requests.get(url)
+                if response.status_code == 200:
+                    with open(filepath, "w", encoding="utf-8") as f:
+                        f.write(response.text)
+                    installed.append(name)
+                else:
+                    console.print(f"[red]Package '{name}' not found. Status: {response.status_code}[/]")
+            except Exception as e:
+                console.print(f"[red]Error installing '{name}': {e}[/]")
+
+        if installed:
+            console.print(f"[green]Successfully installed: {', '.join(installed)}[/]")
+            return True
+            
     elif sub == "uninstall":
         if len(args) < 2:
             console.print("[red]Usage: apt uninstall <name>[/]")
@@ -387,6 +387,9 @@ def main():
             print(colorama.Fore.BLUE + "Official Pynux Discord Server: https://discord.gg/ucJBsh86e3")
 
         elif prompt == "":
+            continue
+
+        elif prompt == " ":
             continue
 
         elif prompt == "credits":
@@ -452,6 +455,12 @@ def main():
             else:
                 console.print("[red]Usage: rn <oldname> <newname>[/]")
 
+        elif cmd_name == "reload":
+
+            clear_command()
+            print(" pynux reloaded")
+            return main()  # Call main() again to restart
+
         elif prompt.startswith("cd "):
             path = prompt[3:].strip()
             if path:
@@ -473,13 +482,6 @@ def main():
             else:
                 console.print("[red]Usage: wget <url>[/]")
 
-        elif prompt.startswith("nano "):
-            filename = prompt[5:].strip()
-            if filename:
-                nano_command(filename)
-            else:
-                console.print("[red]Usage: nano <filename>[/]")
-
         elif prompt == "devlog":
             get_dev_log()
 
@@ -492,3 +494,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # Additional functionality can be added here later
