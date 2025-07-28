@@ -317,8 +317,9 @@ def apt_command(args):
             try:
                 response = requests.get(url)
                 if response.status_code == 200:
-                    with open(filepath, "w", encoding="utf-8") as f:
-                        f.write(response.text)
+                    with open(filepath, "w", encoding="utf-8", newline="") as f:
+                        cleaned_text = response.text.replace("\r\n", "\n").replace("\r", "\n")
+                        f.write(cleaned_text)
                     installed.append(name)
                 else:
                     console.print(f"[red]Package '{name}' not found. Status: {response.status_code}[/]")
