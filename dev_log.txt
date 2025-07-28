@@ -63,3 +63,27 @@ NOTE: you can add your own packages and modifications to the terminal, but insid
      +
      You can see all available packages at https://github.com/ElonChunk/PynuxPackages. 
 
+-
+
+28/7/2025
+Pynux 1.0.4v
+VVVVVVVV NEW COMMANDS VVVVVVVV
+git | checks if you got git installed ifn ot you have to download it yoursellf and go with the installation ( apt install git )
+nano ( reworked ) | better nano ( apt install nano)
+proxytester {ip:port} {ip:port} etc | it is in demo since it doesnt work that good ( apt install proxytester )
+wifiscan | you already know what it does by it's name ( apt install wifiscan )
+geoip {ip} | prints the geolocation of the inputed IP ( apt install geoip )
+nuxfetch | works like winfetch ( apt install nuxfetch )
+reload | reloads the terminal 
+
+VVVVVVVV what else changed VVVVVVVV
+made all of the batch files into one, first.bat
+running the first.bat will download all required libraries and will ask you if you want to run the code as admin or not ( for some packages perms )
+by doing "apt install *" will install all packages, make sure after doing that do as well a reload so commands get registered.
+
+VVVVVVVV What else is coming VVVVVVVV
+better nano reworking
+npm, java, python and etc more rework
+OS simulation of Pynux is being worked on
+Optimizing Pynux even more to be faster
+PynuxIOS + PynuxDroid is being worked on aswell
