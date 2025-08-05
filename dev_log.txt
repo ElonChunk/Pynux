@@ -87,3 +87,25 @@ npm, java, python and etc more rework
 OS simulation of Pynux is being worked on
 Optimizing Pynux even more to be faster
 PynuxIOS + PynuxDroid is being worked on aswell
+
+-
+
+5/8/2025
+( it has been quite a while )
+Pynux 1.0.5v
+VVVVVVVV NEW COMMANDS VVVVVVVV
+touch {filename} | creates an empty file (built-in)  
+echo {text} OR echo {text} > file | prints to terminal or writes to file (built-in)  
+exit / quit | exits the shell (built-in)  
+uptime | shows how long the shell has been running (built-in)  
+history | prints previously used commands in order (built-in)  
+alias name='command' | sets a quick alias you can use (built-in)  
+say {text} | uses system speech to speak your input ( apt install pyttsx3 )  
+calendar | shows current month calendar (built-in)  
+
+VVVVVVVV NEW PACKAGES VVVVVVVV
+sqli | SQL injection made by me, it is still on progress. apt install sqli
+
+VVVVVVVVV what else is coming? VVVVVVVVVV
+better rework on some packages.
+optimizing PyNux
