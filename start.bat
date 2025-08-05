@@ -4,14 +4,14 @@ cls
 color 0A
 
 echo  Pynux Terminal 1.0.x
-echo  Created by MrAnergos ( Elon Chunk )
+echo  Created by MrAnergos
 echo.
 
 timeout /t 1 >nul
 echo Installing Python libraries...
 timeout /t 1 >nul
 
-python -m pip install --quiet colorama pystyle rich prompt_toolkit requests pygments psutil wmi
+python -m pip install --quiet colorama pystyle rich prompt_toolkit requests pygments psutil wmi pyttsx3
 
 if %ERRORLEVEL% NEQ 0 (
     color 0C
