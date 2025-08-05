@@ -65,7 +65,7 @@ def print_banner():
                                                                
 Fan-Made Linux Terminal running On Python 3.11.4
 Only runnable for Windows OS from 10 - 11
-Version: 1.0.4v
+Version: 1.0.5v
 """)
     print(colorama.Fore.LIGHTGREEN_EX + "===========================================================================")
     print(colorama.Fore.YELLOW + f"Current Time: {get_current_time()}")
@@ -587,3 +587,4 @@ def main():
 if __name__ == "__main__":
     main()
     # Additional functionality can be added here later
+
