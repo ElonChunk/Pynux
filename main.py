@@ -13,6 +13,9 @@ import shutil
 import requests
 import zipfile
 import io
+import pyttsx3
+import datetime
+import calendar
 
 PYSystem.Clear()  # Clear the terminal screen
 PYSystem.Title("Pynux - Fan-Made Linux Terminal")
@@ -22,13 +25,19 @@ colorama.init(autoreset=True)
 # for rich console output
 console = Console()
 
+start_time = time.time()
+history = []
+aliases = {}
+
+
 # colours of prompt_toolkit
 YELLOW = '\033[93m'
 RESET = '\033[39m'
 
 
 commands = ["test", "credits", "devlog", "ls", "mkdir", "cd", "rm", "rn", "updates", "reports", 
-            "pwd", "clear", "mv", "cp", "cat", "ip", "ping", "whoami", "wget", "apt", "discord", "reload"]
+            "pwd", "clear", "mv", "cp", "cat", "ip", "ping", "whoami", "wget", "apt", "discord", "reload",
+            "alias", "say", "calendar", "touch", "echo", "uptime", "history"]
 session = PromptSession()
 
 # get desktop path
@@ -355,6 +364,64 @@ def apt_command(args):
     return changed  # <-- Tell main() that something changed
 
 #end of apt test
+# new commands
+def touch_command(filename):
+    try:
+        with open(filename, 'a'):
+            os.utime(filename, None)
+        print(f"[+] Created empty file: {filename}")
+    except Exception as e:
+        print(f"[!] Error creating file: {e}")
+
+def echo_command(args):
+    if ">" in args:
+        parts = ' '.join(args).split(">")
+        message = parts[0].strip()
+        filename = parts[1].strip()
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(message + '\n')
+            print(f"[+] Written to {filename}")
+        except Exception as e:
+            print(f"[!] Error writing to file: {e}")
+    else:
+        print(' '.join(args))
+
+def uptime_command():
+    seconds = int(time.time() - start_time)
+    mins, sec = divmod(seconds, 60)
+    hrs, mins = divmod(mins, 60)
+    print(f"[+] Uptime: {hrs}h {mins}m {sec}s")
+
+def history_command():
+    for i, cmd in enumerate(history, 1):
+        print(f"{i}: {cmd}")
+
+def alias_command(args):
+    if "=" in ' '.join(args):
+        name, real = ' '.join(args).split("=", 1)
+        aliases[name.strip()] = real.strip()
+        print(f"[+] Alias created: {name.strip()} = '{real.strip()}'")
+    else:
+        print("[!] Usage: alias ll='ls -l'")
+
+def say_command(args):
+    if not args:
+        print("[!] Usage: say <text>")
+        return
+    text = ' '.join(args)
+    try:
+        engine = pyttsx3.init()
+        engine.say(text)
+        engine.runAndWait()
+    except Exception as e:
+        print(f"[!] Text-to-speech error: {e}")
+
+def calendar_command():
+    now = datetime.datetime.now()
+    print(calendar.month(now.year, now.month))
+# end of new commands
+
 def main():
     commands_packages = load_commands()
     command_completer = WordCompleter(commands + list(commands_packages.keys()), ignore_case=True)
@@ -392,7 +459,31 @@ def main():
 
         elif prompt == " ":
             continue
+        
+        elif cmd_name == "alias":
+            alias_command(cmd_args)
 
+        elif cmd_name == "say":
+            say_command(cmd_args)
+        
+        elif cmd_name == "calendar":
+            calendar_command()
+        
+        elif cmd_name == "touch":
+            if len(cmd_args) == 1:
+                touch_command(cmd_args[0])
+            else:
+                print("[!] Usage: touch <filename>")
+        
+        elif cmd_name == "echo":
+            echo_command(cmd_args)
+        
+        elif cmd_name == "uptime":
+            uptime_command()
+        
+        elif cmd_name == "history":
+            history_command()
+        
         elif prompt == "credits":
             credits_to_elon()
         
